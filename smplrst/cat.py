@@ -1,5 +1,7 @@
 import json
 
+import os
+
 import requests
 
 import falcon
@@ -12,7 +14,7 @@ class CatEndpoint(object):
 
     def on_get(self, req, resp):
         #initialize connection, DB, and collection
-        mongo_client = MongoClient('localhost', 27017)
+        mongo_client = MongoClient(os.environ['MONGODB_HOST'], 27017)
         db = mongo_client.catdb
         collection = db.catimages
 
