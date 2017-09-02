@@ -22,9 +22,15 @@ class CatEndpoint(object):
         cat_img_resp = {}
         img_doc = {}
 
-        #call cat api, extract and convert needed bits into dict
-        cat_api_req = requests.get('http://thecatapi.com/api/images/get?format=xml')
+        #build and make cat API call
+        api_params = {
+                      'api_key': os.environ['API_KEY'],
+                      'format': 'xml'
+                     }
 
+        cat_api_req = requests.get('http://thecatapi.com/api/images/get', params=api_params)
+
+        #grab needed bits from XML and put into dict for later easy JSON/BSON handling
         cat_resp_xml = ET.fromstring(cat_api_req.content)
 
         for elem in cat_resp_xml.iter():
@@ -35,10 +41,10 @@ class CatEndpoint(object):
             elif elem.tag == 'source_url':
                 img_doc['source_url'] = elem.text
 
-        #build our json response
+        #build our JSON response
         cat_img_resp['image'] = img_doc
 
         resp.body = json.dumps(cat_img_resp, ensure_ascii=False)
 
-        #put json 'doc' into our db collection
+        #put JSON 'doc' into our db collection
         collection.insert_one(cat_img_resp)
